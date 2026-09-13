@@ -161,6 +161,7 @@ class GameStore {
   private peer: Peer | null = null;
   private hostConnection: DataConnection | null = null;
   private peerConnections: DataConnection[] = [];
+  private pendingJoinMessage: NetworkMessage | null = null;
   private processedRequestIds: Set<string> = new Set();
   private pendingRequests: Map<
     string,
@@ -343,6 +344,11 @@ class GameStore {
         const conn = peer.connect(hostPeerId, { reliable: true });
         this.hostConnection = conn;
 
+        conn.on('open', () => {
+          if (this.pendingJoinMessage) {
+            conn.send(this.pendingJoinMessage);
+          }
+        });
         conn.on('data', (data) => {
           this.handleIncomingMessage(data as NetworkMessage, conn);
         });
@@ -587,6 +593,7 @@ class GameStore {
         if (req) {
           clearTimeout(req.timeout);
           this.pendingRequests.delete(msg.requestId);
+          this.pendingJoinMessage = null;
           if (msg.success && msg.data) {
             if (msg.snapshot) {
               this.setSnapshot(msg.snapshot);
@@ -1270,14 +1277,15 @@ class GameStore {
         displayName: name,
         sessionId: this.session_id,
       };
+      this.pendingJoinMessage = joinMsg;
 
       // Send immediately
       this.sendToHost(joinMsg);
 
-      // Retry every 300ms up to 5 times for instantaneous connection
+      // Retry until the timeout so slow PeerJS connections can still join.
       let retries = 0;
       const retryInterval = setInterval(() => {
-        if (!this.pendingRequests.has(requestId) || retries >= 5) {
+        if (!this.pendingRequests.has(requestId)) {
           clearInterval(retryInterval);
           return;
         }
