@@ -1,0 +1,201 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Patrick+Hand&family=Kalam:wght@300;400;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --paper: #f7f3e9;
+    --paper-dark: #ede8d6;
+    --ink: #2a2520;
+    --red-pencil: #c8442e;
+    --blue-pencil: #2a5d8f;
+    --green-pencil: #4a7c3f;
+    --line: #c5d4e8;
+  }
+
+  body {
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: 'Kalam', cursive;
+  }
+}
+
+@layer components {
+  .notebook-bg {
+    background-color: var(--paper);
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px);
+    background-size: 100% 32px;
+    background-position: 0 12px;
+  }
+
+  .notebook-bg-ruled {
+    background-color: var(--paper);
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, transparent 47px, rgba(200, 68, 46, 0.3) 47px, rgba(200, 68, 46, 0.3) 49px, transparent 49px);
+    background-size: 100% 32px, 100% 100%;
+    background-position: 0 12px, 0 0;
+  }
+
+  .handwritten {
+    font-family: 'Caveat', cursive;
+  }
+
+  .pencil-handwritten {
+    font-family: 'Patrick Hand', cursive;
+  }
+
+  .pencil-border {
+    border: 2px solid var(--ink);
+    border-radius: 8px;
+    box-shadow: 2px 3px 0px rgba(42, 37, 32, 0.15);
+  position: relative;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+  background: rgba(255, 252, 245, 0.6);
+  color: var(--ink);
+    font-family: 'Patrick Hand', cursive;
+    font-size: 1.125rem;
+    padding: 0.625rem 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .pencil-border:hover:not(:disabled) {
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 4px 0px rgba(42, 37, 32, 0.2);
+  }
+
+  .pencil-border:active:not(:disabled) {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0px rgba(42, 37, 32, 0.1);
+  }
+
+  .pencil-border:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .pencil-border-red {
+    border-color: var(--red-pencil);
+    color: var(--red-pencil);
+    box-shadow: 2px 3px 0px rgba(200, 68, 46, 0.15);
+  }
+
+  .pencil-border-red:hover:not(:disabled) {
+    box-shadow: 3px 4px 0px rgba(200, 68, 46, 0.2);
+  }
+
+  .pencil-border-blue {
+    border-color: var(--blue-pencil);
+    color: var(--blue-pencil);
+    box-shadow: 2px 3px 0px rgba(42, 93, 143, 0.15);
+  }
+
+  .pencil-border-blue:hover:not(:disabled) {
+    box-shadow: 3px 4px 0px rgba(42, 93, 143, 0.2);
+  }
+
+  .pencil-border-solid {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+
+  .pencil-border-solid:hover:not(:disabled) {
+    background: #3a3530;
+  }
+
+  .pencil-input {
+    background: rgba(255, 252, 245, 0.5);
+    border: none;
+    border-bottom: 2px dashed rgba(42, 37, 32, 0.3);
+    padding: 0.5rem 0.75rem;
+    font-family: 'Kalam', cursive;
+    font-size: 1.125rem;
+    color: var(--ink);
+    outline: none;
+    width: 100%;
+    transition: border-color 0.15s ease;
+  }
+
+  .pencil-input:focus {
+    border-bottom-color: var(--red-pencil);
+  }
+
+  .pencil-input::placeholder {
+    color: rgba(42, 37, 32, 0.3);
+    font-style: italic;
+  }
+
+  .clue-card {
+    background: rgba(255, 252, 245, 0.8);
+    border: 2px solid var(--ink);
+    border-radius: 12px;
+    box-shadow: 3px 4px 0px rgba(42, 37, 32, 0.12);
+    padding: 1.5rem 1rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .clue-letter {
+    font-family: 'Caveat', cursive;
+    font-size: 4rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--red-pencil);
+  }
+
+  .clue-label {
+    font-family: 'Patrick Hand', cursive;
+    font-size: 0.875rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--blue-pencil);
+    margin-bottom: 0.5rem;
+  }
+
+  .page-enter {
+    animation: pageTurn 0.4s ease-out;
+  }
+
+  @keyframes pageTurn {
+    0% {
+      opacity: 0;
+      transform: translateX(20px) rotateY(5deg);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0) rotateY(0);
+    }
+  }
+
+  .scribble-underline {
+    background-image: linear-gradient(transparent 60%, rgba(200, 68, 46, 0.25) 60%);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+  }
+
+  .tape {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-2deg);
+    width: 80px;
+    height: 24px;
+    background: rgba(200, 200, 200, 0.4);
+    border: 1px solid rgba(200, 200, 200, 0.3);
+    box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+  }
+
+  .doodle-circle {
+    border: 2px solid var(--red-pencil);
+    border-radius: 50%;
+    padding: 0.25rem 0.5rem;
+    display: inline-block;
+  }
+}
