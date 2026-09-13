@@ -340,7 +340,9 @@ class GameStore {
       this.peer = peer;
       const hostPeerId = `hhm-${roomCode.toUpperCase()}`;
 
-      peer.on('open', () => {
+      const connectToHost = () => {
+        if (this.peer !== peer || this.hostConnection) return;
+
         const conn = peer.connect(hostPeerId, { reliable: true });
         this.hostConnection = conn;
 
@@ -352,9 +354,19 @@ class GameStore {
         conn.on('data', (data) => {
           this.handleIncomingMessage(data as NetworkMessage, conn);
         });
+        conn.on('error', (err) => {
+          console.warn('PeerJS connection note:', err.message);
+          this.hostConnection = null;
+          if (this.pendingJoinMessage) setTimeout(connectToHost, 500);
+        });
         conn.on('close', () => {
           this.hostConnection = null;
+          if (this.pendingJoinMessage) setTimeout(connectToHost, 500);
         });
+      };
+
+      peer.on('open', () => {
+        connectToHost();
       });
 
       peer.on('error', (err) => {
@@ -1265,7 +1277,8 @@ class GameStore {
     const joinResult = await new Promise<JoinGameResult>((resolve, reject) => {
       const timeout = setTimeout(() => {
         this.pendingRequests.delete(requestId);
-        reject(new Error(`Could not find or connect to room "${code}". Make sure the host is in the lobby.`));
+        this.pendingJoinMessage = null;
+        reject(new Error(`Could not connect to room "${code}". Ask the host to keep the lobby open and try again.`));
       }, 8000);
 
       this.pendingRequests.set(requestId, { resolve, reject, timeout });
