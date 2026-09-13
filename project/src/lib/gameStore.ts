@@ -25,6 +25,8 @@ export interface GameSnapshot {
 type Listener = (snapshot: GameSnapshot) => void;
 
 const ROUND_DURATION_MS = 90_000;
+const JOIN_TIMEOUT_MS = 120_000;
+const JOIN_RETRY_MS = 1_000;
 
 export function normalizeAnswer(input: string): string {
   return (input || '')
@@ -1279,7 +1281,7 @@ class GameStore {
         this.pendingRequests.delete(requestId);
         this.pendingJoinMessage = null;
         reject(new Error(`Could not connect to room "${code}". Ask the host to keep the lobby open and try again.`));
-      }, 8000);
+      }, JOIN_TIMEOUT_MS);
 
       this.pendingRequests.set(requestId, { resolve, reject, timeout });
 
@@ -1304,7 +1306,7 @@ class GameStore {
         }
         retries++;
         this.sendToHost(joinMsg);
-      }, 300);
+      }, JOIN_RETRY_MS);
     });
 
     this.playerId = joinResult.player_id;
